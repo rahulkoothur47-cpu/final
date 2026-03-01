@@ -1,10 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showOptions, setShowOptions] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState();
+
+  const gcekBuses = [1, 2, 3, 8, 9,10];
+
+  const busRoutes = {
+    1: "Kannur → Valapattanam → College",
+    2: "Payyanur → Thaliparamba → College",
+    3: "Kannur → Valapattanam → College",
+    8: "Payyanur → Thaliparamba → College",
+    9: "Payyanur → Thaliparamba → College",
+    10: "Kannur → Kambil → College"
+  };
+
+  useEffect(() => {
+    const flow = searchParams.get("flow");
+
+    if (flow === "gcek") {
+      setShowOptions(true);
+      setSelectedCategory("gcek");
+      router.replace("/");
+    }
+  }, [searchParams, router]);
 
   const handleTrackBus = () => {
     setShowOptions(true);
@@ -13,6 +37,10 @@ export default function Home() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+  };
+
+  const handleBusSelect = (busNumber) => {
+    router.push(`/busmap?bus=${busNumber}`);
   };
 
   const handleBack = () => {
@@ -46,8 +74,8 @@ export default function Home() {
             </div>
           </div>
           <nav className="nav">
-            <a href="#">Home</a>
-            <a href="#">About</a>
+            <a href="/" onClick={() => { setShowOptions(false); setSelectedCategory(null); }}>Home</a>
+            <a href="./about">About</a>
             <a href="#">Contact</a>
           </nav>
         </div>
@@ -68,7 +96,7 @@ export default function Home() {
             
             {!showOptions ? (
               <button onClick={handleTrackBus} className="track-btn">
-                🚌 Track Bus
+                Track Bus
               </button>
             ) : (
               <div className="options-panel">
@@ -80,14 +108,12 @@ export default function Home() {
                         onClick={() => handleCategorySelect("college")}
                         className="category-btn category-btn-college"
                       >
-                        <span className="btn-icon">🎓</span>
                         College Buses
                       </button>
                       <button
                         onClick={() => handleCategorySelect("ksrtc")}
                         className="category-btn category-btn-ksrtc"
                       >
-                        <span className="btn-icon">🚍</span>
                         KSRTC
                       </button>
                     </div>
@@ -100,12 +126,30 @@ export default function Home() {
                     <h3 className="options-title">Select College</h3>
                     <div className="options-buttons">
                       <button
-                        onClick={() => alert("GCEK Bus Tracking - Coming Soon!")}
+                        onClick={() => handleCategorySelect("gcek")}
                         className="category-btn category-btn-gcek"
                       >
-                        <span className="btn-icon">🏛️</span>
-                        GCEK (Govt. College of Engineering, Kannur)
+                        GCEK (Government College of Engineering, Kannur)
                       </button>
+                    </div>
+                    <button onClick={handleBack} className="back-btn">
+                      ← Back
+                    </button>
+                  </>
+                ) : selectedCategory === "gcek" ? (
+                  <>
+                    <h3 className="options-title">Select GCEK Bus</h3>
+                    <div className="bus-list">
+                      {gcekBuses.map((busNumber) => (
+                        <button
+                          key={busNumber}
+                          onClick={() => handleBusSelect(busNumber)}
+                          className="bus-btn"
+                        >
+                          <div className="bus-number">Bus {busNumber}</div>
+                          <div className="bus-route-preview">[{busRoutes[busNumber]}]</div>
+                        </button>
+                      ))}
                     </div>
                     <button onClick={handleBack} className="back-btn">
                       ← Back
@@ -133,17 +177,17 @@ export default function Home() {
             <div className="container">
               <div className="features-grid">
                 <div className="feature-card">
-                  <div className="feature-icon">📍</div>
+                
                   <h4 className="feature-title">Real-Time Location</h4>
                   <p className="feature-text">Track your bus with accurate GPS.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">⏰</div>
+                
                   <h4 className="feature-title">Arrival Estimates</h4>
                   <p className="feature-text">Get accurate arrival predictions.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">🔔</div>
+                
                   <h4 className="feature-title">Smart Notifications</h4>
                   <p className="feature-text">Get alerts when your bus is near.</p>
                 </div>
@@ -159,10 +203,6 @@ export default function Home() {
                   <p className="stat-label">Active Buses</p>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-number">99.4%</div>
-                  <p className="stat-label">Accuracy</p>
-                </div>
-                <div className="stat-item">
                   <div className="stat-number">24/7</div>
                   <p className="stat-label">Live Tracking</p>
                 </div>
@@ -170,9 +210,59 @@ export default function Home() {
             </div>
           </section>
         )}
-      </main>
 
-      {/* Footer */}
+        {/* About Section */}
+        {!showOptions && (
+          <section className="about-section">
+            <div className="container">
+              <h3 className="about-title">About Us</h3>
+              <p className="about-text">
+                Real-Time Bus Tracker helps you track college and KSRTC buses in real-time. 
+                Never miss your bus again with our GPS-powered tracking system. 
+                Developed by the Students of GCEK, our mission is to make commuting easier
+                 and more reliable for everyone.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {!showOptions && (
+          <section className="contribution-wrapper">
+            <div className="contribution-section">
+              <h2 className="contribution-title">Project Contributions</h2>
+              <div className="guide">
+                <img src="./sajith.jpeg"/>
+                <h3>Dr. Sajith . K</h3>
+                <h4>Project Guide</h4>
+                <h5>(Professor, Department of Electronics and Communication Engineering, GCEK)</h5>
+              </div>
+              <div className="Students">
+                <div>
+                  <img src="./abhaya.jpeg"/>
+                  <h3>Abhaya Govind</h3>
+                </div>
+
+                <div>
+                  <img src="./adithyan.jpeg" alt="Adithyan M E"/>
+                  <h3>Adithyan M E</h3>
+                </div>
+
+                <div>
+              <img src="./nandana.jpeg"/>
+              <h3>Nandana R</h3>
+                 </div>
+
+            <div>
+              <img />
+              <h3>Sreehari K B</h3>
+            </div>
+  
+            
+          </div>
+        </div>
+      </section>
+        )}
+      </main>
       <footer className="footer">
         <div className="container footer-content">
           <div className="footer-logo">
