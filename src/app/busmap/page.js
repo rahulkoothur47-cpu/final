@@ -44,7 +44,6 @@ const ROUTE_STOPS = {
     {name:"payyanur college stop", lat: 12.0615, lng: 75.2532},
     {name:"Ezhilode", lat: 12.092453748656329, lng: 75.24806314053399},
     { name: "Pazhangadi", lat: 12.0248, lng: 75.2621 },
-    { name: "Valapattanam", lat: 11.9331, lng: 75.3471 },
     {name:"GCEK ", lat: 11.986166453917972, lng: 75.38159230420446},
   ],
 
@@ -65,7 +64,7 @@ const BUS_ROUTE_KEY = {
   2: "payyanurViaTaliparamba",
   3: "kannurViaKambil",
   8: "payyanurViaTaliparamba",
-  9: "payyanurViaTaliparamba",
+  9: "payyanurViaPazhangadi",
   10: "kannurViaValapattanam",
 };
 

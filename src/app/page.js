@@ -19,7 +19,7 @@ function HomeContent() {
     2: "Payyanur → Thaliparamba → College",
     3: "Kannur → Valapattanam → College",
     8: "Payyanur → Thaliparamba → College",
-    9: "Payyanur → Thaliparamba → College",
+    9: "Payyanur → Pazhangadi → College",
     10: "Kannur → Kambil → College"
   };
 
