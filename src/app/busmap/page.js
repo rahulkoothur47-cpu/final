@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import dynamicImport from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -134,7 +134,7 @@ function normalizeBusPayload(payload) {
   };
 }
 
-export default function BusMapPage() {
+function BusMapContent() {
   const searchParams = useSearchParams();
   const busNumber = searchParams.get("bus") || "1";
   const selectedRouteKey = BUS_ROUTE_KEY[Number(busNumber)] || "kannurViaTaliparamba";
@@ -271,5 +271,13 @@ export default function BusMapPage() {
         />
       </section>
     </main>
+  );
+}
+
+export default function BusMapPage() {
+  return (
+    <Suspense fallback={<div className="busmap-loading">Loading...</div>}>
+      <BusMapContent />
+    </Suspense>
   );
 }
