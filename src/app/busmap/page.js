@@ -75,7 +75,7 @@ const ROUTE_LABEL = {
   kannurViaValapattanam: "Kannur to College via Valapattanam",
 };
 
-const FRESHNESS_THRESHOLD_MS = 15000;
+const FRESHNESS_THRESHOLD_MS = 60000; // 60 seconds - GPS updates may not be instant
 
 function haversineDistanceKm(origin, destination) {
   const toRadians = (deg) => (deg * Math.PI) / 180;
@@ -212,6 +212,15 @@ function BusMapContent() {
       ? Math.max(1, Math.round((distanceKm / busLiveData.speed) * 60 - 2.5))
       : null;
 
+  const arrivalTime = etaMinutes !== null 
+    ? new Date(nowTime + etaMinutes * 60 * 1000).toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    : null;
+
   const etaStatus = () => {
     if (isDataDelayed) return "No recent data";
     if (busLiveData && busLiveData.speed < MIN_MOVING_SPEED) return "Bus stopped";
@@ -255,9 +264,10 @@ function BusMapContent() {
             </div>
             {shouldShowEta && (
               <div className="busmap-eta-display">
-                <p className="busmap-eta-label">ETA</p>
                 <p className="busmap-eta-value">
-                  {etaMinutes !== null ? `${Math.max(1, Math.round(etaMinutes))} mins` : etaStatus() || "--"}
+                  {etaMinutes !== null 
+                    ? `The bus will arrive in ${Math.max(1, Math.round(etaMinutes))} mins` 
+                    : etaStatus() || "--"}
                 </p>
               </div>
             )}
