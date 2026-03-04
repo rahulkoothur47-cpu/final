@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { onValue, ref } from "firebase/database";
@@ -10,12 +10,12 @@ import { db, hasFirebaseConfig } from "@/lib/firebase";
 // Prevent static generation - this page requires client-side rendering
 export const dynamic = 'force-dynamic';
 
-const BusLiveMap = dynamic(() => import("@/components/BusLiveMap"), {
+const BusLiveMap = dynamicImport(() => import("@/components/BusLiveMap"), {
   ssr: false,
   loading: () => <p className="busmap-loading">Loading map...</p>,
 });
 
-const LinearRouteMap = dynamic(() => import("@/components/LinearRouteMap"), {
+const LinearRouteMap = dynamicImport(() => import("@/components/LinearRouteMap"), {
   ssr: false,
 });
 
