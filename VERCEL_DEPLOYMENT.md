@@ -30,13 +30,14 @@ npm install
 
 # Set up environment variables
 # Create .env.local with your Firebase credentials:
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=your_database_url
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyANkSy9yGcORlDYCLIQ9nW1RWNXbp3sqXM
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=bus-tracker-5ef06.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://bus-tracker-5ef06-default-rtdb.asia-southeast1.firebasedatabase.app
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=bus-tracker-5ef06
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=bus-tracker-5ef06.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=656816196934
+NEXT_PUBLIC_FIREBASE_APP_ID=1:656816196934:web:06bcaf2226cd8664b2a947
+
 
 # Run development server
 npm run dev
