@@ -242,7 +242,7 @@ function HomeContent() {
                 </div>
                 <div className="guide">
                   <img src="./jaijohn.jpg"/>
-                  <h3>Prof. Jai John</h3>
+                  <h3>Jai John</h3>
                   <h4>Technical Advisor</h4>
                   <h5>(Professor, Department of Electronics and Communication Engineering, GCEK)</h5>
                 </div>

@@ -83,6 +83,16 @@ const OFF_ROUTE_THRESHOLD_KM = 0.5;
 const ARRIVED_DISTANCE_THRESHOLD_KM = 0.12;
 const MIN_MOVEMENT_FOR_DERIVED_SPEED_KM = 0.01;
 const MAX_REASONABLE_SPEED_KMH = 120;
+const ETA_SMOOTHING_ALPHA = 0.25;
+const ETA_MIN_UPDATE_INTERVAL_MS = 15000;
+const ETA_MAX_STEP_CHANGE_MINUTES = 2;
+const ETA_MIN_REALISTIC_SPEED_KMH = 8;
+const ETA_MAX_REALISTIC_SPEED_KMH = 65;
+const ETA_CONGESTION_MULTIPLIER = 1.12;
+const ETA_DIRECT_DISTANCE_MULTIPLIER = 1.08;
+const ETA_BASE_BUFFER_MINUTES = 0.6;
+const ETA_PER_STOP_BUFFER_MINUTES = 0.35;
+const ETA_MAX_STOP_BUFFER_MINUTES = 4;
 
 function parseNumberish(value) {
   if (value === undefined || value === null) return null;
@@ -309,6 +319,33 @@ function getDirectionalRoute(routeStops, hour24) {
   return isEveningOrNight ? [...routeStops].reverse() : routeStops;
 }
 
+function getMedianValue(numbers) {
+  if (!Array.isArray(numbers) || numbers.length === 0) return 0;
+
+  const sortedNumbers = [...numbers].sort((left, right) => left - right);
+  const middleIndex = Math.floor(sortedNumbers.length / 2);
+
+  if (sortedNumbers.length % 2 === 0) {
+    return (sortedNumbers[middleIndex - 1] + sortedNumbers[middleIndex]) / 2;
+  }
+
+  return sortedNumbers[middleIndex];
+}
+
+function getNextStopIndexByProgress(progressKm, routeMetrics) {
+  if (!routeMetrics || !Array.isArray(routeMetrics.cumulativeDistancesKm)) {
+    return -1;
+  }
+
+  for (let index = 0; index < routeMetrics.cumulativeDistancesKm.length; index += 1) {
+    if (progressKm <= routeMetrics.cumulativeDistancesKm[index]) {
+      return index;
+    }
+  }
+
+  return routeMetrics.cumulativeDistancesKm.length - 1;
+}
+
 function BusMapContent() {
   const searchParams = useSearchParams();
   const busNumber = searchParams.get("bus") || "1";
@@ -326,6 +363,11 @@ function BusMapContent() {
   const [uiError, setUiError] = useState("");
   const [nowTime, setNowTime] = useState(Date.now());
   const lastBusSampleRef = useRef(null);
+  const lastRouteProgressSampleRef = useRef(null);
+  const smoothedEtaMinutesRef = useRef(null);
+  const lastEtaDisplayUpdateAtRef = useRef(0);
+  const [stableEtaMinutes, setStableEtaMinutes] = useState(null);
+  const [routeProgressSpeedKmh, setRouteProgressSpeedKmh] = useState(null);
 
   const selectedLocation = useMemo(
     () =>
@@ -350,6 +392,14 @@ function BusMapContent() {
   useEffect(() => {
     setSelectedLocationName("");
   }, [currentRouteStops]);
+
+  useEffect(() => {
+    smoothedEtaMinutesRef.current = null;
+    lastEtaDisplayUpdateAtRef.current = 0;
+    lastRouteProgressSampleRef.current = null;
+    setStableEtaMinutes(null);
+    setRouteProgressSpeedKmh(null);
+  }, [selectedLocationName, busNumber]);
 
   const shouldShowEta = selectedLocationName && selectedLocation && busLiveData;
 
@@ -436,6 +486,37 @@ function BusMapContent() {
     [busLiveData, currentRouteStops, routeMetrics]
   );
 
+  useEffect(() => {
+    if (!busRouteProgress || !busLiveData?.timestamp) {
+      return;
+    }
+
+    const previousRouteProgressSample = lastRouteProgressSampleRef.current;
+    const currentRouteProgressSample = {
+      progressKm: busRouteProgress.progressKm,
+      timestamp: busLiveData.timestamp,
+    };
+
+    if (previousRouteProgressSample && currentRouteProgressSample.timestamp > previousRouteProgressSample.timestamp) {
+      const elapsedHours =
+        (currentRouteProgressSample.timestamp - previousRouteProgressSample.timestamp) / (60 * 60 * 1000);
+      const progressDeltaKm = currentRouteProgressSample.progressKm - previousRouteProgressSample.progressKm;
+
+      if (elapsedHours > 0 && progressDeltaKm >= MIN_MOVEMENT_FOR_DERIVED_SPEED_KM) {
+        const computedRouteProgressSpeedKmh = progressDeltaKm / elapsedHours;
+        if (
+          Number.isFinite(computedRouteProgressSpeedKmh) &&
+          computedRouteProgressSpeedKmh > 0 &&
+          computedRouteProgressSpeedKmh <= MAX_REASONABLE_SPEED_KMH
+        ) {
+          setRouteProgressSpeedKmh(computedRouteProgressSpeedKmh);
+        }
+      }
+    }
+
+    lastRouteProgressSampleRef.current = currentRouteProgressSample;
+  }, [busRouteProgress, busLiveData?.timestamp]);
+
   const remainingRouteDistanceKm =
     busRouteProgress && selectedStopProgressKm !== null
       ? selectedStopProgressKm - busRouteProgress.progressKm
@@ -466,19 +547,95 @@ function BusMapContent() {
 
   const payloadSpeedKmh = busLiveData?.speed ?? 0;
   const fallbackSpeedKmh = busLiveData?.derivedSpeedKmh ?? 0;
-  const effectiveSpeedKmh = payloadSpeedKmh >= MIN_MOVING_SPEED_KMH ? payloadSpeedKmh : fallbackSpeedKmh;
-  const isBusMoving = effectiveSpeedKmh >= MIN_MOVING_SPEED_KMH;
+  const speedCandidatesKmh = [payloadSpeedKmh, fallbackSpeedKmh, routeProgressSpeedKmh].filter(
+    (speedKmh) => Number.isFinite(speedKmh) && speedKmh >= MIN_MOVING_SPEED_KMH
+  );
 
-  const etaMinutes =
+  const blendedSpeedKmh = speedCandidatesKmh.length
+    ? Math.min(
+        ETA_MAX_REALISTIC_SPEED_KMH,
+        Math.max(ETA_MIN_REALISTIC_SPEED_KMH, getMedianValue(speedCandidatesKmh))
+      )
+    : 0;
+
+  const isBusMoving = blendedSpeedKmh >= MIN_MOVING_SPEED_KMH;
+
+  const busProgressStopIndex =
+    canUseRouteDistance && busRouteProgress && routeMetrics
+      ? getNextStopIndexByProgress(busRouteProgress.progressKm, routeMetrics)
+      : -1;
+
+  const stopsAheadCount =
+    canUseRouteDistance && selectedStopIndex >= 0 && busProgressStopIndex >= 0
+      ? Math.max(0, selectedStopIndex - busProgressStopIndex)
+      : 0;
+
+  const travelEtaMinutes =
     etaDistanceKm !== null &&
     etaDistanceKm > ARRIVED_DISTANCE_THRESHOLD_KM &&
-    effectiveSpeedKmh >= MIN_MOVING_SPEED_KMH &&
+    blendedSpeedKmh >= MIN_MOVING_SPEED_KMH &&
     !isDataDelayed
-      ? Math.max(1, Math.ceil((etaDistanceKm / effectiveSpeedKmh) * 60))
+      ? (etaDistanceKm / blendedSpeedKmh) * 60
       : null;
 
-  const arrivalTime = etaMinutes !== null 
-    ? new Date(nowTime + etaMinutes * 60 * 1000).toLocaleTimeString('en-IN', {
+  const stopDelayBufferMinutes =
+    travelEtaMinutes !== null && canUseRouteDistance
+      ? Math.min(ETA_MAX_STOP_BUFFER_MINUTES, stopsAheadCount * ETA_PER_STOP_BUFFER_MINUTES)
+      : 0;
+
+  const rawEtaMinutes =
+    travelEtaMinutes !== null
+      ? travelEtaMinutes * (canUseRouteDistance ? ETA_CONGESTION_MULTIPLIER : ETA_DIRECT_DISTANCE_MULTIPLIER) +
+        ETA_BASE_BUFFER_MINUTES +
+        stopDelayBufferMinutes
+      : null;
+
+  useEffect(() => {
+    if (rawEtaMinutes === null || !Number.isFinite(rawEtaMinutes)) {
+      smoothedEtaMinutesRef.current = null;
+      lastEtaDisplayUpdateAtRef.current = 0;
+      setStableEtaMinutes(null);
+      return;
+    }
+
+    const previousSmoothed = smoothedEtaMinutesRef.current;
+    const nextSmoothedMinutes =
+      previousSmoothed === null
+        ? rawEtaMinutes
+        : previousSmoothed + (rawEtaMinutes - previousSmoothed) * ETA_SMOOTHING_ALPHA;
+
+    smoothedEtaMinutesRef.current = nextSmoothedMinutes;
+
+    setStableEtaMinutes((previousDisplayMinutes) => {
+      const roundedTargetMinutes = Math.max(1, Math.round(nextSmoothedMinutes));
+
+      if (previousDisplayMinutes === null) {
+        lastEtaDisplayUpdateAtRef.current = Date.now();
+        return roundedTargetMinutes;
+      }
+
+      if (roundedTargetMinutes === previousDisplayMinutes) {
+        return previousDisplayMinutes;
+      }
+
+      const now = Date.now();
+      if (now - lastEtaDisplayUpdateAtRef.current < ETA_MIN_UPDATE_INTERVAL_MS) {
+        return previousDisplayMinutes;
+      }
+
+      const deltaMinutes = roundedTargetMinutes - previousDisplayMinutes;
+      const cappedDeltaMinutes = Math.max(
+        -ETA_MAX_STEP_CHANGE_MINUTES,
+        Math.min(ETA_MAX_STEP_CHANGE_MINUTES, deltaMinutes)
+      );
+
+      lastEtaDisplayUpdateAtRef.current = now;
+      return previousDisplayMinutes + cappedDeltaMinutes;
+    });
+  }, [rawEtaMinutes]);
+
+  const arrivalTime = stableEtaMinutes !== null 
+    ? new Date(nowTime + stableEtaMinutes * 60 * 1000).toLocaleTimeString('en-IN', {
         timeZone: 'Asia/Kolkata',
         hour: '2-digit',
         minute: '2-digit',
@@ -491,7 +648,7 @@ function BusMapContent() {
     if (hasPassedStop) return "Bus already passed this stop";
     if (isArrivingNow) return "Bus arriving now";
     if (busLiveData && !isBusMoving) return "Bus stopped";
-    if (isOffRoute && etaMinutes === null) return "Bus is off route";
+    if (isOffRoute && stableEtaMinutes === null) return "Bus is off route";
     return null;
   };
 
@@ -534,8 +691,8 @@ function BusMapContent() {
             {shouldShowEta && (
               <div className="busmap-eta-display">
                 <p className="busmap-eta-value">
-                  {etaMinutes !== null 
-                    ? `The bus will arrive in ${etaMinutes} mins${arrivalTime ? ` (around ${arrivalTime})` : ""}${!canUseRouteDistance && isOffRoute ? " - direct estimate" : ""}`
+                  {stableEtaMinutes !== null 
+                    ? `The bus will arrive in about ${stableEtaMinutes} mins${arrivalTime ? ` (around ${arrivalTime})` : ""}${!canUseRouteDistance && isOffRoute ? " - direct estimate" : ""}`
                     : etaStatus() || "--"}
                 </p>
               </div>
