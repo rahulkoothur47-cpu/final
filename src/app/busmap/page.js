@@ -545,6 +545,14 @@ function BusMapContent() {
   const hasPassedStop =
     canUseRouteDistance && remainingRouteDistanceKm < -ARRIVED_DISTANCE_THRESHOLD_KM;
 
+  const isFinalStopSelected =
+    selectedStopIndex >= 0 && selectedStopIndex === currentRouteStops.length - 1;
+
+  const hasReachedDestination =
+    Boolean(selectedLocation) &&
+    isFinalStopSelected &&
+    (isArrivingNow || hasPassedStop);
+
   const payloadSpeedKmh = busLiveData?.speed ?? 0;
   const fallbackSpeedKmh = busLiveData?.derivedSpeedKmh ?? 0;
   const speedCandidatesKmh = [payloadSpeedKmh, fallbackSpeedKmh, routeProgressSpeedKmh].filter(
@@ -645,6 +653,7 @@ function BusMapContent() {
 
   const etaStatus = () => {
     if (isDataDelayed) return "No recent data";
+    if (hasReachedDestination) return "Bus has reached destination";
     if (hasPassedStop) return "Bus already passed this stop";
     if (isArrivingNow) return "Bus arriving now";
     if (busLiveData && !isBusMoving) return "Bus stopped";
