@@ -244,7 +244,7 @@ function HomeContent() {
                   <img src="./jaijohn.jpg"/>
                   <h3>Jai John</h3>
                   <h4>Technical Advisor</h4>
-                  <h5>(Professor, Department of Electronics and Communication Engineering, GCEK)</h5>
+                  <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
                 </div>
               </div>
 
