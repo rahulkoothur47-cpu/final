@@ -28,9 +28,9 @@ function HomeContent() {
   useEffect(() => {
     const flow = searchParams.get("flow");
 
-    if (flow === "gcek") {
+    if (flow === "cetkr") {
       setShowOptions(true);
-      setSelectedCategory("gcek");
+      setSelectedCategory("cetkr");
       router.replace("/");
     }
   }, [searchParams, router]);
@@ -224,7 +224,7 @@ function HomeContent() {
               <p className="about-text">
                 Real-Time Bus Tracker helps you track college and KSRTC buses in real-time. 
                 Never miss your bus again with our GPS-powered tracking system. 
-                Developed by the Students of GCEK, our mission is to make commuting easier
+                Developed by the Students of CETKR, our mission is to make commuting easier
                  and more reliable for everyone.
               </p>
             </div>
