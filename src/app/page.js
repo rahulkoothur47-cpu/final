@@ -12,15 +12,17 @@ function HomeContent() {
   const [showOptions, setShowOptions] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState();
 
-  const gcekBuses = [1, 2, 3, 8, 9,10];
+  const cetkrbuses = [1, 2, 3,4,5,6,7,8];
 
   const busRoutes = {
-    1: "Kannur → Valapattanam → College",
-    2: "Payyanur → Thaliparamba → College",
-    3: "Kannur → Valapattanam → College",
-    8: "Payyanur → Thaliparamba → College",
-    9: "Payyanur → Pazhangadi → College",
-    10: "Kannur → Kambil → College"
+    1: "taliparamba → Kankol → College",
+    2: "pazhangadi → Kankol → College",
+    3: "Kanhangad → Nileshwaram → College",
+    4: "Payyanur → cheurvathur → College",
+    5: "taliparamba → Kankol → College",
+    6: "pazhangadi → plathara→College",
+    7: "Kanhangad → Cheruvathur → College",
+    8: "Payyanur → Trikkaripur → College",
   };
 
   useEffect(() => {
@@ -129,21 +131,21 @@ function HomeContent() {
                     <h3 className="options-title">Select College</h3>
                     <div className="options-buttons">
                       <button
-                        onClick={() => handleCategorySelect("gcek")}
-                        className="category-btn category-btn-gcek"
+                        onClick={() => handleCategorySelect("cetkr")}
+                        className="category-btn category-btn-cetkr"
                       >
-                        GCEK (Government College of Engineering, Kannur)
+                       CETKR (College of Engineering, Trikkaripur)
                       </button>
                     </div>
                     <button onClick={handleBack} className="back-btn">
                       ← Back
                     </button>
                   </>
-                ) : selectedCategory === "gcek" ? (
+                ) : selectedCategory === "cetkr" ? (
                   <>
-                    <h3 className="options-title">Select GCEK Bus</h3>
+                    <h3 className="options-title">Select CETKR Bus</h3>
                     <div className="bus-list">
-                      {gcekBuses.map((busNumber) => (
+                      {cetkrbuses.map((busNumber) => (
                         <button
                           key={busNumber}
                           onClick={() => handleBusSelect(busNumber)}
@@ -227,61 +229,6 @@ function HomeContent() {
               </p>
             </div>
           </section>
-        )}
-
-        {!showOptions && (
-          <section className="contribution-wrapper">
-            <div className="contribution-section">
-              <h2 className="contribution-title">Project Contributions</h2>
-              <div className="guides-row">
-                <div className="guide">
-                  <img src="./sajith.jpeg"/>
-                  <h3>Dr. Sajith . K</h3>
-                  <h4>Project Guide</h4>
-                  <h5>(Professor, Department of Electronics and Communication Engineering, GCEK)</h5>
-                </div>
-                <div className="guide">
-                  <img src="./jaijohn.jpg"/>
-                  <h3>Jai John</h3>
-                  <h4>Technical Advisor</h4>
-                  <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
-                </div>
-              </div>
-
-              <div className="Students">
-                <div>
-                  <img src="./abhaya.jpeg"/>
-                  <h3>Abhaya Govind</h3>
-                  <h4>Semester 6</h4>
-                  <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
-                </div>
-
-                <div>
-                  <img src="./adithyan.jpeg" alt="Adithyan M E"/>
-                  <h3>Adithyan M E</h3>
-                  <h4>Semester 6</h4>
-                  <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
-                </div>
-
-                <div>
-                  <img src="./nandana.jpeg"/>
-                  <h3>Nandana R</h3>
-                  <h4>Semester 6</h4>
-                  <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
-                    
-                </div>
-
-            <div>
-              <img src="./sreehari.jpg"/>
-              <h3>Sreehari K B</h3>
-              <h4>Semester 6</h4>
-              <h5>(Department of Electronics and Communication Engineering, GCEK)</h5>
-            </div>
-  
-            
-          </div>
-        </div>
-      </section>
         )}
       </main>
       <footer className="footer">

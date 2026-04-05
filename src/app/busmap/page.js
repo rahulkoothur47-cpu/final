@@ -20,59 +20,52 @@ const LinearRouteMap = dynamicImport(() => import("@/components/LinearRouteMap")
 });
 
 const ROUTE_STOPS = {
-  payyanurViaTaliparamba: [
-    { name: "Payyanur", lat: 12.106784790108003, lng: 75.21030675840721 },
-    {name:"Bypass road stop", lat: 12.11351613506258, lng: 75.21043618869865},
-    { name:"Perumba", lat: 12.111626988027025, lng: 75.21924800410231},
-    {name:"Payyanur college stop", lat: 12.101188992612682, lng: 75.22995782962082},
-    {name:"Ezhilode", lat: 12.092453748656329, lng: 75.24806314053399},
-    {name:"Plathara", lat: 12.08014701482077, lng: 75.26306381376685},
-    {name:"Vilayankode", lat: 12.075428683131365, lng:75.27602501692503},
-    {name:"periyaram", lat: 12.075428683131365, lng: 75.27602501692503},
-    {name:"Empate bus stop", lat: 12.068244675039452, lng: 75.30528064520092},
-    {name:"koran-pedika stop", lat: 12.06144416292877, lng: 75.32569999880673},
-    {name:"Chudala", lat: 12.061137399293951, lng: 75.33612726382222},
-    {name:"Kuppam", lat: 12.051880200379442, lng: 75.34320901055995},
+  taliparambViaKankol: [
     { name:"Taliparamba", lat: 12.03616141329985, lng: 75.36020462074428},
-    {name:"kuttikkol", lat: 12.018436491728679, lng: 75.36934147817087},
-    {name:"bakkalam", lat: 11.997059731844809, lng: 75.37077729639444},
-    {name:"GCEK ", lat: 11.986166453917972, lng: 75.38159230420446},
-  ],
-
-  payyanurViaPazhangadi: [
-    { name: "Payyanur", lat: 12.1044, lng: 75.2025 },
-    {name:"payyanur college stop", lat: 12.0615, lng: 75.2532},
+    {name:"Kuppam", lat: 12.051880200379442, lng: 75.34320901055995},
+    {name:"Chudala", lat: 12.061137399293951, lng: 75.33612726382222},
+    {name:"koran-pedika stop", lat: 12.06144416292877, lng: 75.32569999880673},
+    {name:"Empate bus stop", lat: 12.068244675039452, lng: 75.30528064520092},
+    {name:"periyaram", lat: 12.075428683131365, lng: 75.27602501692503},
+    {name:"Vilayankode", lat: 12.075428683131365, lng:75.27602501692503},
+    {name:"Plathara", lat: 12.08014701482077, lng: 75.26306381376685},
     {name:"Ezhilode", lat: 12.092453748656329, lng: 75.24806314053399},
-    { name: "Pazhangadi", lat: 12.0248, lng: 75.2621 },
-    {name:"GCEK ", lat: 11.986166453917972, lng: 75.38159230420446},
+    {name:"Payyanur college stop", lat: 12.101188992612682, lng: 75.22995782962082},
+    { name:"Perumba", lat: 12.111626988027025, lng: 75.21924800410231},
+    { name:"Kothayimukk",lat: 12.133512717919615, lng: 75.21806980308467},
+    { name:"swami mukku",lat: 12.187664085928873, lng: 75.21671704800872},
   ],
 
-  kannurViaKambil: [
-    { name: "Kannur", lat: 11.8745, lng: 75.3704 },
-    { name: "Narath", lat: 11.9373, lng: 75.4292 },
-     {name:"GCEK ", lat: 11.986166453917972, lng: 75.38159230420446},
+  payyanurViaTrikaripur: [
+    { name: "Payyanur", lat: 12.0966, lng: 75.2028 },
+    { name: "Trikaripur", lat: 12.2048, lng: 75.2015 },
   ],
-  kannurViaValapattanam: [
-    { name: "Kannur", lat: 11.8745, lng: 75.3704 },
-    { name: "Valapattanam", lat: 11.9331, lng: 75.3471 },
-     {name:"GCEK ", lat: 11.986166453917972, lng: 75.38159230420446},
+
+  KanhangadViaNileshwaram: [
+    { name: "Kanhangad", lat: 12.3304, lng: 75.0998 },
+  ],
+
+  PazhangadiViaKankol: [
+    { name: "Pazhangadi", lat: 12.0798, lng: 75.3581 },
   ],
 };
 
 const BUS_ROUTE_KEY = {
-  1: "kannurViaValapattanam",
-  2: "payyanurViaTaliparamba",
-  3: "kannurViaKambil",
-  8: "payyanurViaTaliparamba",
-  9: "payyanurViaPazhangadi",
-  10: "kannurViaValapattanam",
+    1:"taliparambViaKankol",
+    2:"PazhangadiViaKankol",
+    3:"KanhangadViaNileshwaram",
+    4:"payyanurViaTrikaripur",
+    5:"taliparambViaKankol",
+    6:"PazhangadiViaKankol",
+    7:"KanhangadViaNileshwaram",
+    8:"payyanurViaTrikaripur",
 };
 
 const ROUTE_LABEL = {
-  payyanurViaTaliparamba: "Payyanur to College via Taliparamba",
-  payyanurViaPazhangadi: "Payyanur to College via Pazhangadi",
-  kannurViaKambil: "Kannur to College via Kambil",
-  kannurViaValapattanam: "Kannur to College via Valapattanam",
+  taliparambViaKankol: "Taliparamba to College via Kankol",
+  payyanurViaTrikaripur: "Payyanur to College via Trikaripur",
+  KanhangadViaNileshwaram: "Kanhangad to College via Nileshwaram",
+  PazhangadiViaKankol: "Pazhangadi to College via Kankol",
 };
 
 const FRESHNESS_THRESHOLD_MS = 60000; // 60 seconds - GPS updates may not be instant
@@ -349,8 +342,8 @@ function getNextStopIndexByProgress(progressKm, routeMetrics) {
 function BusMapContent() {
   const searchParams = useSearchParams();
   const busNumber = searchParams.get("bus") || "1";
-  const selectedRouteKey = BUS_ROUTE_KEY[Number(busNumber)] || "kannurViaValapattanam";
-  const baseRouteStops = ROUTE_STOPS[selectedRouteKey] || ROUTE_STOPS["kannurViaValapattanam"] || [];
+  const selectedRouteKey = BUS_ROUTE_KEY[Number(busNumber)] || "taliparambViaKankol";
+  const baseRouteStops = ROUTE_STOPS[selectedRouteKey] || ROUTE_STOPS["taliparambViaKankol"] || [];
   const currentHour = new Date().getHours();
   const currentRouteStops = useMemo(
     () => getDirectionalRoute(baseRouteStops, currentHour),
@@ -671,7 +664,7 @@ function BusMapContent() {
               Realtime OpenStreetMap tracking with Firebase updates • Route: {ROUTE_LABEL[selectedRouteKey]} ({isReverseDirection ? "College to Places" : "Places to College"})
             </p>
           </div>
-          <Link href="/?flow=gcek" className="track-btn">
+          <Link href="/?flow=cetkr" className="track-btn">
             Back to Home
           </Link>
         </div>
