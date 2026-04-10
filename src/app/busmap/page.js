@@ -34,7 +34,6 @@ const ROUTE_STOPS = {
     { name:"Perumba", lat: 12.111626988027025, lng: 75.21924800410231},
     { name:"Kothayimukk",lat: 12.133512717919615, lng: 75.21806980308467},
     { name:"swami mukku",lat: 12.187664085928873, lng: 75.21671704800872},
-    { name:"COE trikkaripur",lat: 12.244049452026305, lng: 75.23419995106745},
   ],
 
   payyanurViaTrikaripur: [
